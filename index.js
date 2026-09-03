@@ -53,7 +53,7 @@ footer{text-align:center;padding:30px;color:#98a2b3}
 const onboarding = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>ReviewBooster Setup</title>
 <style>body{font-family:Arial;background:#f8fafc;margin:0}.box{max-width:600px;margin:50px auto;background:#fff;padding:30px;border-radius:20px}input,select{width:100%;padding:13px;margin:7px 0 17px;border:1px solid #ddd;border-radius:10px}button{width:100%;padding:14px;background:#2563eb;color:#fff;border:0;border-radius:10px;font-weight:800}</style></head>
 <body><div class="box"><h1>Set up your business</h1><p>أدخل بيانات متجرك ورابط Google Reviews. بعدها ننتقل لربط العملاء والإرسال التلقائي.</p>
-<form id="f"><label>Business name</label><input id="name" required><label>Shop domain (optional)</label><input id="shop" placeholder="store.myshopify.com"><label>Google review link</label><input id="review" type="url" required><label>Plan</label><select id="plan"><option>starter</option><option>pro</option><option>done-for-you</option></select><button>Create setup</button></form><p id="msg"></p></div>
+<form id="f"><label>Business name</label><input id="name" required><label>Shop domain</label><input id="shop" placeholder="store.myshopify.com" required><label>Google review link</label><input id="review" type="url" required><label>Plan</label><select id="plan"><option>starter</option><option>pro</option><option>done-for-you</option></select><button>Create setup</button></form><p id="msg"></p></div>
 <script>document.getElementById('f').onsubmit=async e=>{e.preventDefault();const b={name:name.value,shop_domain:shop.value,review_url:review.value,plan:plan.value};const r=await fetch('/api/businesses',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});const d=await r.json();msg.textContent=r.ok?'Created. Business ID: '+d.id:('Error: '+(d.error||'failed'));}</script>
 </body></html>`;
 
@@ -85,10 +85,10 @@ export default {
     if (request.method === "POST" && url.pathname === "/api/businesses") {
       if (!env.DB) return json({error:"Database is not connected yet. Create/bind D1 first."},503);
       const b = await request.json();
-      if (!b.name || !b.review_url) return json({error:"name and review_url are required"},400);
+      if (!b.name || !b.shop_domain || !b.review_url) return json({error:"name, shop_domain and review_url are required"},400);
       const id = crypto.randomUUID();
       await env.DB.prepare("INSERT INTO businesses(id,name,shop_domain,review_url,plan,done_for_you) VALUES(?,?,?,?,?,?)")
-        .bind(id,b.name,b.shop_domain||null,b.review_url,b.plan||"starter",b.plan==="done-for-you"?1:0).run();
+        .bind(id,b.name,b.shop_domain,b.review_url,b.plan||"starter",b.plan==="done-for-you"?1:0).run();
       return json({ok:true,id});
     }
 

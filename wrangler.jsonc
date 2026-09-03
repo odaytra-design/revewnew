@@ -5,5 +5,12 @@
   "compatibility_date": "2026-09-03",
   "triggers": {
     "crons": ["*/15 * * * *"]
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "reviewbooster",
+      "database_id": "00ce153e-725a-443c-9baa-deab230b20b2"
+    }
+  ]
 }
